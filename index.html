@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Audio Player</title>
+    <link rel="icon" href="https://iptmod.com/wp-content/uploads/2020/09/iptmod_spotify_8.5.74.834_iptmod.com_.png" type="image/x-icon">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -222,7 +223,7 @@
         </div>
     </div>
 
-    <audio id="audio" muted></audio>
+    <audio id="audio" autoplay></audio> <!-- Removed 'muted' attribute -->
 
     <script>
         const songs = [
@@ -233,7 +234,6 @@
         let currentSongIndex = 0;
         let isAutoplayEnabled = true; // Default to autoplay ON
         let isDragging = false;
-        let wasPlayingBeforeChange = false;
 
         const audio = document.getElementById("audio");
         const songTitle = document.getElementById("song-title");
@@ -261,16 +261,21 @@
         }
 
         function loadSong(index) {
-            wasPlayingBeforeChange = !audio.paused;  // Check if the previous song was playing
             currentSongIndex = index;
             const song = songs[index];
             songTitle.textContent = song.title;
             songArtist.textContent = song.artist;
             audio.src = song.src;
             playlistDropdown.value = currentSongIndex; // Update dropdown selection
-            if (wasPlayingBeforeChange) {
-                audio.play();  // Resume playing immediately
-            }
+            audio.currentTime = 0;  // Reset the progress bar
+
+            // Update the document title
+            document.title = `${song.title} - ${song.artist}`; // Set title dynamically
+
+            audio.play(); // Play the song immediately
+
+            // Ensure the play/pause button reflects the correct state
+            playButton.textContent = audio.paused ? "▶" : "❚❚";
         }
 
         function playPause() {
@@ -286,15 +291,11 @@
         function nextSong() {
             currentSongIndex = (currentSongIndex + 1) % songs.length;
             loadSong(currentSongIndex);
-            audio.play(); // Immediately play next song
-            playlistDropdown.value = currentSongIndex; // Update dropdown selection
         }
 
         function prevSong() {
             currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
             loadSong(currentSongIndex);
-            audio.play(); // Immediately play previous song
-            playlistDropdown.value = currentSongIndex; // Update dropdown selection
         }
 
         autoplayButton.addEventListener("click", () => {
@@ -305,7 +306,6 @@
         audio.addEventListener("ended", () => {
             if (isAutoplayEnabled) {
                 nextSong(); // Go to next song when current ends
-                audio.play(); // Immediately play next song
             }
         });
 
@@ -314,8 +314,7 @@
         prevButton.addEventListener("click", prevSong);
 
         playlistDropdown.addEventListener("change", (e) => {
-            loadSong(parseInt(e.target.value));
-            audio.play();
+            loadSong(parseInt(e.target.value)); // Load the selected song
         });
 
         audio.addEventListener("timeupdate", () => {
@@ -335,36 +334,6 @@
             audio.currentTime = (clickX / width) * audio.duration;
         });
 
-        progressBar.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            if (!audio.paused) {
-                audio.pause();
-            }
-            updateProgressBar(e);
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                updateProgressBar(e);
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                audio.play();
-            }
-        });
-
-        function updateProgressBar(e) {
-            const progressBarWidth = progressBar.clientWidth;
-            const clickX = e.offsetX;
-            const percentage = clickX / progressBarWidth;
-            audio.currentTime = percentage * audio.duration;
-            progress.style.width = `${percentage * 100}%`;
-            progressThumb.style.left = `${percentage * 100}%`;
-        }
-
         function formatTime(seconds) {
             const minutes = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
@@ -374,9 +343,13 @@
         window.onload = () => {
             populatePlaylist();
             loadSong(0); // Load the first song
-            audio.play(); // Play the song immediately
-            audio.muted = false; // Unmute the audio
+
+            // Try to autoplay the song
+            audio.play().catch((error) => {
+                console.log("Autoplay was blocked by the browser: ", error);
+            });
         };
+
     </script>
 </body>
 </html>
