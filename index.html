@@ -226,130 +226,136 @@
     <audio id="audio" autoplay></audio> <!-- Removed 'muted' attribute -->
 
     <script>
-        const songs = [
-            { title: "CARNIVAL", artist: "Kanye West, Ty Dolla $ign", src: "https://www.dropbox.com/scl/fi/jdm2pc5i0z4tssbtf6t2c/12-Carnival.mp3?rlkey=n9ncc8egcnwes2a9bw5660dky&st=cn0g5e0o&raw=1" },
-            { title: "BURN", artist: "Kanye West, Ty Dolla $ign", src: "https://www.dropbox.com/scl/fi/kptzdit2rgx87d1uizdzb/09-Burn.mp3?rlkey=ukc7xnuxbvr1epg27ps2dg5be&st=py6tbav3&raw=1" },
-        ];
+    const songs = [
+        { title: "CARNIVAL", artist: "Kanye West, Ty Dolla $ign", src: "https://www.dropbox.com/scl/fi/jdm2pc5i0z4tssbtf6t2c/12-Carnival.mp3?rlkey=n9ncc8egcnwes2a9bw5660dky&st=cn0g5e0o&raw=1" },
+        { title: "BURN", artist: "Kanye West, Ty Dolla $ign", src: "https://www.dropbox.com/scl/fi/kptzdit2rgx87d1uizdzb/09-Burn.mp3?rlkey=ukc7xnuxbvr1epg27ps2dg5be&st=py6tbav3&raw=1" },
+    ];
 
-        let currentSongIndex = 0;
-        let isAutoplayEnabled = true; // Default to autoplay ON
-        let isDragging = false;
+    let currentSongIndex = 0;
+    let isAutoplayEnabled = true; // Default to autoplay ON
+    let isDragging = false;
 
-        const audio = document.getElementById("audio");
-        const songTitle = document.getElementById("song-title");
-        const songArtist = document.getElementById("song-artist");
-        const progress = document.getElementById("progress");
-        const progressBar = document.getElementById("progress-bar");
-        const progressThumb = document.getElementById("progress-thumb");
-        const currentTime = document.getElementById("current-time");
-        const totalDuration = document.getElementById("total-duration");
-        const playButton = document.getElementById("play-button");
-        const prevButton = document.getElementById("prev-button");
-        const nextButton = document.getElementById("next-button");
-        const volumeSlider = document.getElementById("volume-slider");
-        const playlistDropdown = document.getElementById("playlist-dropdown");
-        const autoplayButton = document.getElementById("autoplay-button");
+    const audio = document.getElementById("audio");
+    const songTitle = document.getElementById("song-title");
+    const songArtist = document.getElementById("song-artist");
+    const progress = document.getElementById("progress");
+    const progressBar = document.getElementById("progress-bar");
+    const progressThumb = document.getElementById("progress-thumb");
+    const currentTime = document.getElementById("current-time");
+    const totalDuration = document.getElementById("total-duration");
+    const playButton = document.getElementById("play-button");
+    const prevButton = document.getElementById("prev-button");
+    const nextButton = document.getElementById("next-button");
+    const volumeSlider = document.getElementById("volume-slider");
+    const playlistDropdown = document.getElementById("playlist-dropdown");
+    const autoplayButton = document.getElementById("autoplay-button");
 
-        function populatePlaylist() {
-            playlistDropdown.innerHTML = "";
-            songs.forEach((song, index) => {
-                const option = document.createElement("option");
-                option.value = index;
-                option.textContent = `${song.title} - ${song.artist}`;
-                playlistDropdown.appendChild(option);
-            });
-        }
-
-        function loadSong(index) {
-            currentSongIndex = index;
-            const song = songs[index];
-            songTitle.textContent = song.title;
-            songArtist.textContent = song.artist;
-            audio.src = song.src;
-            playlistDropdown.value = currentSongIndex; // Update dropdown selection
-            audio.currentTime = 0;  // Reset the progress bar
-
-            // Update the document title
-            document.title = `${song.title} - ${song.artist}`; // Set title dynamically
-
-            audio.play(); // Play the song immediately
-
-            // Ensure the play/pause button reflects the correct state
-            playButton.textContent = audio.paused ? "▶" : "❚❚";
-        }
-
-        function playPause() {
-            if (audio.paused) {
-                audio.play();
-                playButton.textContent = "❚❚";
-            } else {
-                audio.pause();
-                playButton.textContent = "▶";
-            }
-        }
-
-        function nextSong() {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
-            loadSong(currentSongIndex);
-        }
-
-        function prevSong() {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-            loadSong(currentSongIndex);
-        }
-
-        autoplayButton.addEventListener("click", () => {
-            isAutoplayEnabled = !isAutoplayEnabled;
-            autoplayButton.textContent = `Autoplay: ${isAutoplayEnabled ? "On" : "Off"}`;
+    function populatePlaylist() {
+        playlistDropdown.innerHTML = "";
+        songs.forEach((song, index) => {
+            const option = document.createElement("option");
+            option.value = index;
+            option.textContent = `${song.title} - ${song.artist}`;
+            playlistDropdown.appendChild(option);
         });
+    }
 
-        audio.addEventListener("ended", () => {
-            if (isAutoplayEnabled) {
-                nextSong(); // Go to next song when current ends
-            }
-        });
+    function loadSong(index) {
+        currentSongIndex = index;
+        const song = songs[index];
+        songTitle.textContent = song.title;
+        songArtist.textContent = song.artist;
+        audio.src = song.src;
+        playlistDropdown.value = currentSongIndex; // Update dropdown selection
+        audio.currentTime = 0;  // Reset the progress bar
 
-        playButton.addEventListener("click", playPause);
-        nextButton.addEventListener("click", nextSong);
-        prevButton.addEventListener("click", prevSong);
+        // Update the document title
+        document.title = `${song.title} - ${song.artist}`; // Set title dynamically
 
-        playlistDropdown.addEventListener("change", (e) => {
-            loadSong(parseInt(e.target.value)); // Load the selected song
-        });
+        audio.play(); // Play the song immediately
 
-        audio.addEventListener("timeupdate", () => {
-            progress.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
-            progressThumb.style.left = `${(audio.currentTime / audio.duration) * 100}%`;
-            currentTime.textContent = formatTime(audio.currentTime);
-            totalDuration.textContent = formatTime(audio.duration);
-        });
+        // Ensure the play/pause button reflects the correct state
+        playButton.textContent = audio.paused ? "▶" : "❚❚";
+    }
 
-        volumeSlider.addEventListener("input", () => {
-            audio.volume = volumeSlider.value;
-        });
-
-        progressBar.addEventListener("click", (e) => {
-            const clickX = e.offsetX;
-            const width = progressBar.clientWidth;
-            audio.currentTime = (clickX / width) * audio.duration;
-        });
-
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+    function playPause() {
+        if (audio.paused) {
+            audio.play();
+            playButton.textContent = "❚❚";
+            // Change document title to song title when playing
+            const song = songs[currentSongIndex];
+            document.title = `${song.title} - ${song.artist}`;
+        } else {
+            audio.pause();
+            playButton.textContent = "▶";
+            // Change document title to "Spotify Clone" when paused
+            document.title = "Spotify Clone";
         }
+    }
 
-        window.onload = () => {
-            populatePlaylist();
-            loadSong(0); // Load the first song
+    function nextSong() {
+        currentSongIndex = (currentSongIndex + 1) % songs.length;
+        loadSong(currentSongIndex);
+    }
 
-            // Try to autoplay the song
-            audio.play().catch((error) => {
-                console.log("Autoplay was blocked by the browser: ", error);
-            });
-        };
+    function prevSong() {
+        currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+        loadSong(currentSongIndex);
+    }
 
-    </script>
+    autoplayButton.addEventListener("click", () => {
+        isAutoplayEnabled = !isAutoplayEnabled;
+        autoplayButton.textContent = `Autoplay: ${isAutoplayEnabled ? "On" : "Off"}`;
+    });
+
+    audio.addEventListener("ended", () => {
+        if (isAutoplayEnabled) {
+            nextSong(); // Go to next song when current ends
+        }
+    });
+
+    playButton.addEventListener("click", playPause);
+    nextButton.addEventListener("click", nextSong);
+    prevButton.addEventListener("click", prevSong);
+
+    playlistDropdown.addEventListener("change", (e) => {
+        loadSong(parseInt(e.target.value)); // Load the selected song
+    });
+
+    audio.addEventListener("timeupdate", () => {
+        progress.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+        progressThumb.style.left = `${(audio.currentTime / audio.duration) * 100}%`;
+        currentTime.textContent = formatTime(audio.currentTime);
+        totalDuration.textContent = formatTime(audio.duration);
+    });
+
+    volumeSlider.addEventListener("input", () => {
+        audio.volume = volumeSlider.value;
+    });
+
+    progressBar.addEventListener("click", (e) => {
+        const clickX = e.offsetX;
+        const width = progressBar.clientWidth;
+        audio.currentTime = (clickX / width) * audio.duration;
+    });
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+    }
+
+    window.onload = () => {
+        populatePlaylist();
+        loadSong(0); // Load the first song
+
+        // Try to autoplay the song
+        audio.play().catch((error) => {
+            console.log("Autoplay was blocked by the browser: ", error);
+        });
+    };
+
+</script>
+
 </body>
 </html>
